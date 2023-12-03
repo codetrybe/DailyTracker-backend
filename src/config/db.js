@@ -1,14 +1,14 @@
 // db.js
-import mysql from "mysql"
+import mysql from "mysql2"
 import dotenv from "dotenv"
 dotenv.config()
 
 // Create a connection to the database
 const connection = mysql.createConnection({
-	host: 'localhost',
-	user: 'root',
-	password: process.env.PASSWORD,
-	database: process.env.DB,
+	host: process.env.DB_HOST || "localhost",
+	user: process.env.DB_USER || "whyte",
+	password: process.env.PASSWORD || "pa55w0rd",
+	database: process.env.DB || "DailyTracker",
 });
 
 // Open the MySQL connection
