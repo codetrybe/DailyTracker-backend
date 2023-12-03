@@ -17,7 +17,7 @@ app.use(express.urlencoded({extended: true}));
 
 // mount route
 app.use("/v1", routes)
-app.use("/sign-up", signup)
+app.use("/user/sign-up", signup)
 
 // index route
 app.get("/", (req, res) => {
