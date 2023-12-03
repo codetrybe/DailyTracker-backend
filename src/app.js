@@ -6,6 +6,7 @@ const app = express();
 
 // get routes
 import routes from "./routes/index.js";
+import signup from "./routes/user-signup.js"
 import { StatusCodes } from "http-status-codes";
 
 // setup middleware
@@ -15,6 +16,7 @@ app.use(express.urlencoded({extended: true}));
 
 // mount route
 app.use("/v1", routes)
+app.use("/sign-up", signup)
 
 // index route
 app.get("/", (req, res) => {
