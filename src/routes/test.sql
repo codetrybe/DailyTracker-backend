@@ -1,0 +1,1 @@
+ CREATE USER 'chura'@'localhost' IDENTIFIED BY 'CHUrabrady123@';
