@@ -2,9 +2,14 @@ import app from "./app.js";
 import { successResponse } from "./utils/libs/response";
 import connection from "./config/db.js";
 
+/**
+ * @id: userid
+ */
+
 app.get("/delete/:id", (req, res) => {
   let userid = req.params.id;
   console.log(req.method);
+  // i assumed the user would have unique id named userid
   let sql = `DELETE FROM users WHERE userid=${userid}`;
   connection.query(sql, (error, user) => {
     console.log(req.method);
