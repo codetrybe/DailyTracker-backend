@@ -4,23 +4,26 @@ const mysql = require('mysql');
 
 const db = require('../config/db');
 
-router.patch('/users/edit/:userId', (req, res) => {
+router.patch('/edit/:userId', (req, res) => {
   const userId = req.params.userId;
   const newDetails = req.body;
 
+  // check if user is in db
   const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
-
   db.query(checkUserQuery, [userId], (checkError, checkSuccess) => {
+    //If query not successfull
     if (checkError) {
       console.log('Error checking user:', checkError);
       res.status(500).send('Error confirming user');
     } else {
+      //if empty result is returned on query
       if (checkSuccess.length === 0) {
         console.log('User not found');
         res.status(404).send('User not found');
       } else {
-        const updateQuery = 'UPDATE users SET ? WHERE id = ?';
 
+	// Update user info if found
+        const updateQuery = 'UPDATE users SET ? WHERE id = ?';
         db.query(updateQuery, [newDetails, userId], (err, success) => {
           if (err) {
             console.log('Failed to update user details', err);
