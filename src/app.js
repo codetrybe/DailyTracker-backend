@@ -21,6 +21,7 @@ app.get("/", (req, res) => {
 	return successResponse(res, "Welcome to Daily Tracker Backend service 🚀");
 })
 
+
 // handle 404 routes
 app.all("*", async(req, res, next) => {
 	return errorResponse(res, `Resource ${req.originalUrl} does not exist`, StatusCodes.NOT_FOUND)
