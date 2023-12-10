@@ -6,5 +6,4 @@ const router = Router();
 
 registerRoute(router);
 deleteRoute(router);
-
 export default router;
