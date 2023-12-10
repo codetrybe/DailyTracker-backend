@@ -17,7 +17,7 @@ class User{
           const selectUserQuery = 'SELECT * FROM users WHERE email = ? OR username = ?';
           db.query(selectUserQuery, [emailorUsername, emailorUsername], async (error, results) => {
             if (error) {
-              return res.status(500).json({ message: 'Error logging in.' });
+              return res.status(500).json({ message: 'Invalid email or password.' });
             }
     
             const user = results[0];
