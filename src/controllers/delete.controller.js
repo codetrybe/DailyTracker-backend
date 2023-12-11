@@ -1,7 +1,7 @@
-import { successResponse } from "./utils/libs/response.js";
-import db from "./config/db.js";
+import db from "../config/db.js";
 import tryCatch from "../utils/libs/tryCatch.js";
 import util from "util";
+import { successResponse } from "../utils/libs/response.js";
 
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
