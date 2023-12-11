@@ -1,4 +1,4 @@
-import { deleteUser } from "../delete-endpoint";
+import { deleteUser } from "../controllers/delete.controller.js";
 
 
 export default (router) => {
