@@ -7,7 +7,6 @@ const app = express();
 // get routes
 import routes from "./routes/index.js";
 import { StatusCodes } from "http-status-codes";
-import connection from "./config/db.js";
 
 // setup middleware
 app.use(cors());

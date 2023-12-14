@@ -5,10 +5,11 @@ dotenv.config()
 
 // Create a connection to the database
 const connection = mysql.createConnection({
-	host: process.env.DB_HOST || "localhost",
-	user: process.env.DB_USER || "whyte",
-	password: process.env.PASSWORD || "pa55w0rd",
-	database: process.env.DB || "DailyTracker",
+	host: "localhost",
+	user: "root",
+	password: process.env.PASSWORD,
+	database: process.env.DB,
+	port: process.env.DBPORT
 });
 
 // Open the MySQL connection

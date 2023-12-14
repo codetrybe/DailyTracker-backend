@@ -1,0 +1,17 @@
+# Check out this links for more info:
+# https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+# https://editorconfig.org/
+
+root = true
+
+# Apply for every file regardless of type
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = true
+charset = utf-8
+end_of_line = lf
+
+# Apply for markdown files
+[*{.md,.markdown}]
+indent_style = tab
+tab_width = 4
