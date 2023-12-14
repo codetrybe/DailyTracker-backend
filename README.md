@@ -4,32 +4,7 @@ This is the backend for the DailyTracker application. It is built using Node.js 
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js
-- MySQL
-
-### Installation
-
-1. Clone the repository. ```git clone <repository_url>```
-
-2. Install dependencies. ```npm install```
-
-3. Setup environment variable - `cp .env.example .env`
-
-4. Run the server. ```npm run dev```
-
-The server will start on port 3000 by default. You can change the port in the `index.js` file if necessary.
-
-## Database Setup
-
-Create a MySQL database with the following credentials:
-
-- Database name: your_database_name
-- Username: your_username
-- Password: your_password
-
-Ensure that your MySQL server is running, and update the database configuration in `.env` with your database credentials.
+To install the project, follow the instructions in [installation.md](docs/installation.md).
 
 ## API Endpoints
 
