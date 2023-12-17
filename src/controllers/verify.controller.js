@@ -2,6 +2,7 @@ import tryCatch from '../utils/libs/tryCatch.js';
 import db from '../config/db.js';
 import { StatusCodes } from 'http-status-codes';
 import util from 'util';
+import { errorResponse, successResponse } from '../utils/libs/response.js';
 
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
@@ -25,7 +26,7 @@ export const verifyEmail = tryCatch(async (req, res) => {
 	)
 	// update the user is_email_verified to true
 	await queryPromise(
-		"UPDATE users SET is_email_verified = true WHERE email = ?", [findOtp[0].email]
+		"UPDATE users SET is_email_verified = true WHERE user_id = ?", [findOtp[0].user_id]
 	)
 
 	/**
@@ -38,3 +39,6 @@ export const verifyEmail = tryCatch(async (req, res) => {
 	return successResponse(res, "Email verified successfully", {});
 })
 
+//**TODO
+// - Add endpoint to request a new OTP
+// */

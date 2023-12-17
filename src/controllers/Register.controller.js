@@ -5,29 +5,15 @@ import tryCatch from "../utils/libs/tryCatch.js";
 import { hashPassword } from "../utils/helpers/bcrypt.helper.js";
 import { v4 as uuid } from "uuid";
 import util from "util";
-import nodemailer from "nodemailer";
 import speakeasy from "speakeasy";
 import jwt from 'jsonwebtoken';
+import { sendEmail } from "../services/email.service.js";
+import { generateToken } from "../utils/helpers/jwt.helper.js";
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
 
-// create a transporter for dailytracker email
-const transporter = nodemailer.createTransport({
-	service: "gmail",
-	auth: {
-	  user: "<dailytrackeremail>@gmail.com",
-	  pass: "<dailytrackerpassword>", 
-	},
-  });
-
 
 export const register = tryCatch(async (req, res) => {
-	const errors = validationResult(req);
-	// checks for validation errors
-	if (!errors.isEmpty()) {
-		return res.status(422).json({ errors: errors.array() });
-	  }
-	//   if no errors, continue with the rest of the code;
 	const {
 		fullname,
 		username,
@@ -68,7 +54,7 @@ export const register = tryCatch(async (req, res) => {
 
 	// Set OTP expiration (e.g., 5 minutes from now)
 	const expiration = new Date();
-	expiration.setMinutes(expiration.getMinutes() + 5);
+	expiration.setMinutes(expiration.getMinutes() + 60);
 
 
 	// we have to create a table for OTP records
@@ -77,46 +63,28 @@ export const register = tryCatch(async (req, res) => {
 
 	// Save OTP and expiration in the database
 	await queryPromise(
-		"INSERT INTO otp_records(user_id, otp, expiration) VALUES (?, ?, ?)",
+		"INSERT INTO otp(user_id, otp, expired_at) VALUES (?, ?, ?)",
 		[user.user_id, otp, expiration]
 	  );
 
 	// now we can send OTP to users email
+	await sendEmail(email, "OTP for Registration", `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`);
 
-	const mailOptions = {
-		from: "<dailyTrackeremail>@gmail.com",
-		to: email , // email is destructured from the user
-		subject: "OTP for Registration",
-		text: `Your OTP for registration is: ${otp}. It will expire in 5 minutes.`,
-	  };
-
-	  transporter.sendMail(mailOptions, (error, info) => {
-		if (error) {
-		  console.error(error);
-		  return errorResponse(res, "Failed to send OTP", StatusCodes.INTERNAL_SERVER_ERROR);
-		}
 	
-		console.log("Email sent: " + info.response);
-		successResponse(res, "User registered successfully. OTP sent to email.", {}, StatusCodes.CREATED);
-	  });
+	const payload = {
+	  user:{
+		  id:user.user_id
+	  }
+  }
 
-	  // use jwt to send a payload containing the user_id of the just registered user
-
-	  const payload = {
-		user:{
-			id:user.user_id
-		}
-	}
-
-	try{
+	  // use jwt to send a payload containing the user_id of the just registered user	
 		const token = await jwt.sign(payload,
 			 process.env.SECRET_KEY, //process.env.SECRET_KEY
-			 {expiresIn: 3600 * 24})
-		res.status(201).json({token});
-	}
-	catch(err){
-		res.status(500).send("jwt error")
-	}
+			 {expiresIn: 3600 * 24}) 
+			 //TODO:  Use the generateToken function
+
+
+	
 	/**
 	 * TODO:
 	 * - Generate OTP
@@ -126,6 +94,6 @@ export const register = tryCatch(async (req, res) => {
 	 * - Add JWT token to response
 	 */
 
-	// return successResponse(res, "User registered successfully", {}, StatusCodes.CREATED);
+	return successResponse(res, "User registered successfully", {data: {token}}, StatusCodes.CREATED);
 
 });
