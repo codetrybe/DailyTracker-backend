@@ -30,7 +30,7 @@ const setpassword = async (req, res) => {
   }
 
   //grab the id and token data passed along the request parameter
-  const { id, token } = req.params;
+  const { id, token } = req.params; //get user id from the generated token
 
   // verify if the id is mapped to a valid user
   const user = await query (`SELECT * FROM users WHERE user_id = ?`,[id])
