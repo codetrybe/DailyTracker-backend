@@ -78,9 +78,7 @@ export const register = tryCatch(async (req, res) => {
   }
 
 	  // use jwt to send a payload containing the user_id of the just registered user	
-		const token = await jwt.sign(payload,
-			 process.env.SECRET_KEY, //process.env.SECRET_KEY
-			 {expiresIn: 3600 * 24}) 
+		const token = generateToken(payload, 3600*24) 
 			 //TODO:  Use the generateToken function
 
 
