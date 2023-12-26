@@ -10,9 +10,21 @@ const queryPromise = util.promisify(db.query).bind(db);
 
 
 export const update = tryCatch(async (req, res) => {
-
+	
 	const userId = req.params.userId;
-	const newDetails = req.body;
+	const restrictedFields = ['user_id', 'username', 'email', 'is_email_verified','is_phone_verified', 'created_at', 'updated_at'];
+	const requestBody = req.body;
+
+	const newDetails = (restrictedFields, requestBody) => {
+		
+		if (restrictedFields ) {
+			restrictedFields.forEach((field) => {
+				delete requestBody[field];
+			})
+		}
+		return requestBody
+	
+	}
 
 	// check if user is in db
 	const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
@@ -22,17 +34,13 @@ export const update = tryCatch(async (req, res) => {
 		return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
 	}
 
-	// Update user info if found
-	// updateQuery updates from one field to all fields in user profile matching user_id
+	// Update allowed fields if user is found
 	const updateQuery = "UPDATE users SET ? WHERE user_id = ?";
-	await queryPromise(updateQuery, [newDetails, userId]);
+	await queryPromise(updateQuery, [newDetails(restrictedFields, requestBody), userId]);
 
 	/**
 	 * TODO:
-	 * - What are the fields that can be updated?
-	 * ---- All fields can be updated with the query
-	 * - this updateQuery, can it update more than one field?
-	 * ---- Yes, it can. It modifies the values if available, sets them if they are not set.
+	 * - Set email verification for password update
 	 */
 
 	return successResponse(res, "User details updated successfully", {});
