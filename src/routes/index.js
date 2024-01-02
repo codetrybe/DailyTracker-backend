@@ -7,6 +7,7 @@ import forgotpassword from "./forgotpassword.route.js"
 import resetpassword from "./resetpassword.route.js"
 import verifyRoute from "./verify.route.js";
 import editRoute from "./edit.route.js";
+import otpverifyRoute from "./otpverify.route.js";
 
 const router = Router();
 
@@ -17,5 +18,6 @@ forgotpassword(router);
 resetpassword(router);
 verifyRoute(router);
 editRoute(router);
+otpverifyRoute(router)
 
 export default router;

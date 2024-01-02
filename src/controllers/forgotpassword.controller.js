@@ -4,41 +4,50 @@ import { promisify } from "util";
 import dotenv from "dotenv"
 import tryCatch from "../utils/libs/tryCatch.js";
 import { errorResponse, successResponse } from "../utils/libs/response.js";
+import { sendEmail } from "../services/email.service.js";
+import speakeasy from 'speakeasy'
 import { StatusCodes } from "http-status-codes";
 dotenv.config()
 
-const query = promisify(database.query).bind(database)
-const secret_key = process.env.secret_key
+const queryPromise = promisify(database.query).bind(database);
+
+const emailMessage = `Email sent successfully, click here http://localhost:${ process.env.HOST }/v1/verifyotp to reset password`
 
 
 export const forgotpassword = tryCatch(async (req, res) => {
    const { email } = req.body;
-   const user = await query(`SELECT * FROM users WHERE email = ?`,[email]);
+   const user = await queryPromise(`SELECT * FROM users WHERE email = ?`,[email]);
 
    if (!user[0]){
      return errorResponse(res, "No user found for this email", StatusCodes.BAD_REQUEST);
    }
+	 console.log(user)
 // Generate OTP TO SEND TO THE USER
 	const otp = speakeasy.totp({
 		secret: speakeasy.generateSecret().base32,
 		encoding: "base32",
 	  });
 
+	// attach user_id to identify user of the otp
+	const	newotp = otp + user[0].user_id;
+
+
 	// Set OTP expiration (e.g., 5 minutes from now)
 	const expiration = new Date();
-	expiration.setMinutes(expiration.getMinutes() + 60);
-
+	expiration.setMinutes(expiration.getMinutes() + 60)
+	
+	
 	// Save OTP and expiration in the database
 	await queryPromise(
 		"INSERT INTO otp(user_id, otp, expired_at) VALUES (?, ?, ?)",
-		[user.user_id, otp, expiration]
+		[user[0].user_id, newotp, expiration]
 	  );
 
-	// now we can send OTP to users email
-	await sendEmail(email, "OTP for Registration", `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`);
+		// now we can send OTP to users email
+	// await sendEmail(email, "OTP for Registration", `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`);
 
-  return successResponse(res, "Email sent successfully", {});
-
+	console.log(newotp)
+  return successResponse(res, emailMessage, {});
 })
 
 /**
