@@ -9,6 +9,12 @@ import { comparePassword, hashPassword } from "../utils/helpers/bcrypt.helper.js
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
 
+/**
+ * Get user Profile
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const getUser = tryCatch(async (req, res) => {
 	const {user_id} = req.params;
 	const userQuery = "SELECT * FROM users WHERE user_id = ?";
@@ -20,6 +26,12 @@ export const getUser = tryCatch(async (req, res) => {
 	return successResponse(res, "User Retrieved Successfully", {data: removePasswordFromUser(user[0])});
 })
 
+/**
+ * Update User Profile
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const updateUser = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const restrictedFields = [
@@ -62,6 +74,12 @@ export const updateUser = tryCatch(async (req, res) => {
   return successResponse(res, "User details updated successfully");
 });
 
+/**
+ * Change User Password
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const changePassword = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -92,7 +110,12 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
 
 })
 
-
+/**
+ * Delete User Account
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const deleteUser = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const userQuery = "SELECT * FROM users WHERE user_id = ?";

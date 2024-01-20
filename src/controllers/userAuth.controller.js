@@ -12,6 +12,12 @@ import { removePasswordFromUser } from "../utils/helpers/user.helper.js";
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
 
+/**
+ * Register a new user
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const register = tryCatch(async (req, res) => {
   const {
     fullname,
@@ -105,6 +111,12 @@ export const register = tryCatch(async (req, res) => {
   );
 });
 
+/**
+ * Verify email 
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const verifyEmail = tryCatch(async (req, res) => {
   const { otp } = req.body;
 
@@ -140,6 +152,12 @@ export const verifyEmail = tryCatch(async (req, res) => {
   return successResponse(res, "Email verified successfully",  {data: {user: findOtp[0].user_id}, token}, );
 });
 
+/**
+ * Resend Email Verification 
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const resendEmailVerification = tryCatch(async (req, res) => {
   const { email } = req.body;
 
@@ -160,7 +178,7 @@ export const resendEmailVerification = tryCatch(async (req, res) => {
   });
 
   const expiration = new Date();
-  expiration.setMinutes(expiration.getMinutes() + 60);
+  expiration.setMinutes(expiration.getMinutes() + 5);
 
   await queryPromise(
     "INSERT INTO otp(user_id, otp, expired_at) VALUES (?, ?, ?)",
@@ -177,6 +195,12 @@ export const resendEmailVerification = tryCatch(async (req, res) => {
   return successResponse(res, "Email verification resent successfully", {});
 });
 
+/**
+ * Login user
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const login = tryCatch(async (req, res) => {
   /**
    * TODO:
@@ -219,6 +243,12 @@ export const login = tryCatch(async (req, res) => {
   return successResponse(res, "Login successful", {data:{user: removePasswordFromUser(user[0])}, token});
 });
 
+/**
+ * Forgot password 
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const forgotpassword = tryCatch(async (req, res) => {
   const { email } = req.body;
   const user = await queryPromise(`SELECT * FROM users WHERE email = ?`, [
@@ -257,6 +287,12 @@ export const forgotpassword = tryCatch(async (req, res) => {
   return successResponse(res, "OTP sent successfully, please check your email", {});
 });
 
+/**
+ * Verify password OTP
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const verifyPasswordOtp = tryCatch(async (req, res) => {
   const { otp } = req.body;
 
@@ -280,6 +316,12 @@ export const verifyPasswordOtp = tryCatch(async (req, res) => {
   return successResponse(res, "Password OTP verified successfully", {token});
 });
 
+/**
+ * Reset password
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const resetPassword = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const {newPassword } = req.body;

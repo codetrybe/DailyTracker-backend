@@ -2,6 +2,13 @@ import { StatusCodes } from "http-status-codes"
 import { errorResponse } from "../../utils/libs/response"
 import { verifyToken } from "../../utils/helpers/jwt.helper"
 
+/**
+ * Middleware function for user authentication.
+ * @param  req - the request object
+ * @param  res - the response object
+ * @param  next - the next function to be called
+ * @return void | errorResponse
+ */
 export const userAuth = (req, res, next) => {
 	const authHeader = req.headers.authorization
 	if (!authHeader || !authHeader.startsWith("Bearer")) {
