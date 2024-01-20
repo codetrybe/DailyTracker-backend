@@ -94,7 +94,7 @@ export const register = tryCatch(async (req, res) => {
   };
 
   // use jwt to send a payload containing the user_id of the just registered user
-  const token = await generateToken(payload, "24h");
+  const token = generateToken(payload, "24h");
   console.log("Generated Token:", token);
 
   return successResponse(
@@ -194,7 +194,7 @@ export const login = tryCatch(async (req, res) => {
     emailOrUsername,
     emailOrUsername,
   ]);
-  if (!user) {
+  if (user.length === 0) {
     return errorResponse(
       res,
       "Invalid email or password",
@@ -281,13 +281,14 @@ export const verifyPasswordOtp = tryCatch(async (req, res) => {
 });
 
 export const resetPassword = tryCatch(async (req, res) => {
-  const { userId, newPassword } = req.body;
+  const { user_id } = req.params;
+  const {newPassword } = req.body;
 
   // Update user password
   const hashedPassword = await hashPassword(newPassword);
   await queryPromise("UPDATE users SET password_hash = ? WHERE user_id = ?", [
     hashedPassword,
-    userId,
+    user_id,
   ]);
 
   return successResponse(res, "Password reset successfully", {});

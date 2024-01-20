@@ -8,6 +8,6 @@ export default (router) => {
   router.post("/users/login", login);
   router.post("/users/forgotPassword", forgotpassword);
   router.post("/users/verifyPasswordOtp", verifyPasswordOtp);
-  router.post("/users/resetPassword", resetPassword);
+  router.post("/users/:user_id/resetPassword", resetPassword);
 
 };

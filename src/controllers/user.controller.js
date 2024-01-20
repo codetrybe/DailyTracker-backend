@@ -4,7 +4,7 @@ import tryCatch from "../utils/libs/tryCatch.js";
 import db from "../config/db.js";
 import util from "util";
 import { removePasswordFromUser } from "../utils/helpers/user.helper.js";
-import { comparePassword } from "../utils/helpers/bcrypt.helper.js";
+import { comparePassword, hashPassword } from "../utils/helpers/bcrypt.helper.js";
 
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
@@ -12,12 +12,12 @@ const queryPromise = util.promisify(db.query).bind(db);
 export const getUser = tryCatch(async (req, res) => {
 	const {user_id} = req.params;
 	const userQuery = "SELECT * FROM users WHERE user_id = ?";
-	const [user] = await queryPromise(userQuery, [user_id]);
+	const user = await queryPromise(userQuery, [user_id]);
 	if (user.length === 0) {
 		return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
 	}
 
-	return successResponse(res, "User details", {data: removePasswordFromUser(user[0])});
+	return successResponse(res, "User Retrieved Successfully", {data: removePasswordFromUser(user[0])});
 })
 
 export const updateUser = tryCatch(async (req, res) => {
@@ -26,6 +26,7 @@ export const updateUser = tryCatch(async (req, res) => {
     "user_id",
     "username",
     "email",
+	"password_hash",
     "is_email_verified",
     "is_phone_verified",
     "created_at",
@@ -45,7 +46,7 @@ export const updateUser = tryCatch(async (req, res) => {
   // check if user is in db
   // Unwrap user object from query-returned array, for easy access of user properties.
   const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-  const [user] = await queryPromise(checkUserQuery, [user_id]);
+  const user = await queryPromise(checkUserQuery, [user_id]);
 
   if (user.length === 0) {
     return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
@@ -55,17 +56,17 @@ export const updateUser = tryCatch(async (req, res) => {
   const updateQuery = "UPDATE users SET ? WHERE user_id = ?";
   await queryPromise(updateQuery, [
     newDetails(restrictedFields, requestBody),
-    userId,
+	user_id,
   ]);
 
-  return successResponse(res, "User details updated successfully", {});
+  return successResponse(res, "User details updated successfully");
 });
 
 export const changePassword = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const { oldPassword, newPassword, confirmPassword } = req.body;
   const userQuery = "SELECT * FROM users WHERE user_id = ?";
-  const [user] = await queryPromise(userQuery, [user_id]);
+  const user = await queryPromise(userQuery, [user_id]);
   if (user.length === 0) {
     return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
   }
@@ -82,9 +83,10 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
   if (newPassword !== confirmPassword) {
 	return errorResponse(res, "New password and confirm password must be same", StatusCodes.BAD_REQUEST);
   }
+  const hashedPassword = await hashPassword(newPassword);
 //   update password
   const updateQuery = "UPDATE users SET password_hash = ? WHERE user_id = ?";
-  await queryPromise(updateQuery, [newPassword, userId]);
+  await queryPromise(updateQuery, [hashedPassword, user_id]);
 
   return successResponse(res, "Password changed successfully");
 
@@ -94,7 +96,7 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
 export const deleteUser = tryCatch(async (req, res) => {
   const { user_id } = req.params;
   const userQuery = "SELECT * FROM users WHERE user_id = ?";
-  const [user] = await queryPromise(userQuery, [user_id]);
+  const user = await queryPromise(userQuery, [user_id]);
   if (user.length === 0) {
 	return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
   }
