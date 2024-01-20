@@ -18,7 +18,7 @@ export const updateTodo = tryCatch(async (req, res) => {
 
   const userId = req.params.userId;
   const listId = req.params.listId;
-  const updatedTodoData = req.body;
+  const requestBody = req.body;
 
   // Check if user matching provided userId exists
   const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
@@ -36,26 +36,29 @@ export const updateTodo = tryCatch(async (req, res) => {
     return errorResponse(res, "Todo with given list ID not found for user", StatusCodes.NOT_FOUND);
   }
   
-  // Update todo list with the specified listId using the user-provided details
+  // remove restricted fields from details provided by user
+  const updatedTodoData = (restrictedFields, requestBody) => {
+    if (requestBody) {
+      restrictedFields.forEach((field) => {
+        delete requestBody[field];
+      });
+    }
+    return requestBody;
+  };
+
+  // Update todo list with the specified listId using the filtered user-provided details
   const todoUpdateQuery = "UPDATE todo_lists SET ? WHERE list_id = ?";
 
-  await queryPromise(todoUpdateQuery, [updatedTodoData, listId]);
+  await queryPromise(todoUpdateQuery, [
+    updatedTodoData(restrictedFields, requestBody),
+    listId
+  ]);
 
   return successResponse(res, "List updated sucessfully, {}");
 });
 
 
-export const getAllTodos = tryCatch(async (req, res) => {
-  const userId = req.params.userId;
-  const listId = req.params.listId;
-
-  const getTodoQuery = "SELECT todo_lists.* FROM todo_lists JOIN users ON todo_lists.user_id = users.user_id WHERE users.user_id = ?";
-  const todoList = await queryPromise(getTodoQuery, [userId, listId]);
-
-  if (todoList.length > 0) {
-    return todoList;
-  }
-
-  return errorResponse(res, "List empty", StatusCodes.NOT_FOUND);
-});
- 
+/**
+ * - Edit tasks linked to todos?
+ * - Implement restrictedFields
+ */
