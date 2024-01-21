@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { successResponse, errorResponse } from "../utils/libs/response";
+import { successResponse, errorResponse } from "../utils/libs/response.js";
 
 import util from "util";
-import tryCatch from "../utils/libs/tryCatch";
-import db from "../config/db";
+import tryCatch from "../utils/libs/tryCatch.js";
+import db from "../config/db.js";
 
 // Converting db.query to promise based function
 const queryPromise = util.promisify(db.query).bind(db);
@@ -22,7 +22,7 @@ export const updateTodo = tryCatch(async (req, res) => {
 
   // Check if user matching provided userId exists
   const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-  const [user] = await queryPromise(checkUserQuery, [userId]);
+  const user = await queryPromise(checkUserQuery, [userId]);
 
   if (user.length === 0) {
     return errorResponse(res, "User Not Found!", StatusCodes.NOT_FOUND);
