@@ -8,6 +8,7 @@ import resetpassword from "./resetpassword.route.js"
 import verifyRoute from "./verify.route.js";
 import editRoute from "./edit.route.js";
 import otpverifyRoute from "./otpverify.route.js";
+import deleteTodoRoute from "./todo-list-deletion.js"
 
 const router = Router();
 
@@ -19,5 +20,6 @@ resetpassword(router);
 verifyRoute(router);
 editRoute(router);
 otpverifyRoute(router)
+deleteTodoRoute(router)
 
 export default router;

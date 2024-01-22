@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 const query = promisify(database.query).bind(database);
 
-const getpassword = (req, res) => {
+const getpassword = (req, res, next) => {
   //function to to render template to get new password upon get request to this route
 
   //grab id and token for request parameter
@@ -15,6 +15,8 @@ const getpassword = (req, res) => {
   // get password1 data
   // get password2 data
   //post data to the same route
+  res.send("reset password get route reached")
+  next()
 
 }
 
