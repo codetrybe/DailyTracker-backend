@@ -87,11 +87,11 @@ export const register = tryCatch(async (req, res) => {
   );
 
   // now we can send OTP to users email
-  // await sendEmail(
-  //   email,
-  //   "OTP for Registration",
-  //   `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`
-  // );
+  await sendEmail(
+    email,
+    "OTP for Registration",
+    `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`
+  );
 
   const payload = {
     user: {
