@@ -2,7 +2,13 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-// function that sends email
+/**
+ * Send Email Helper 
+ * @param  to - The email address of the recipient
+ * @param  subject - The subject of the email
+ * @param  message - The message of the email
+ * @returns void
+ */
 export const sendEmail = async (to, subject, message) => {
 	try {
 		const transporter = nodemailer.createTransport({

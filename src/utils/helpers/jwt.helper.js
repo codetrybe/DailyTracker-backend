@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
  */
 export const generateToken = (payload, expiresIn) => {
 	try {
-		return jwt.sign(payload, process.env.SECRET_KEY, expiresIn);
+		return jwt.sign(payload, process.env.SECRET_KEY, {expiresIn});
 	} catch (err) {
 		return false
 	}
