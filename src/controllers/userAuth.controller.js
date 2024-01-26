@@ -77,7 +77,7 @@ export const register = tryCatch(async (req, res) => {
 
   // Set OTP expiration (e.g., 5 minutes from now)
   const expiration = new Date();
-  expiration.setMinutes(expiration.getMinutes() + 60);
+  expiration.setMinutes(expiration.getMinutes() + 5);
 
 
   // Save OTP and expiration in the database
@@ -93,15 +93,8 @@ export const register = tryCatch(async (req, res) => {
     `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`
   );
 
-  const payload = {
-    user: {
-      id: user.user_id,
-    },
-  };
-
   // use jwt to send a payload containing the user_id of the just registered user
-  const token = generateToken(payload, "24h");
-  console.log("Generated Token:", token);
+  const token = generateToken({ userId: user.user_id }, "24h");
 
   return successResponse(
     res,
@@ -323,8 +316,31 @@ export const verifyPasswordOtp = tryCatch(async (req, res) => {
  * @returns successResponse | errorResponse
  */
 export const resetPassword = tryCatch(async (req, res) => {
-  const { user_id } = req.params;
+  // const { user_id } = req.params;
+  const { user_id }  = req.app.get("user");
+  console.log({user_id});
   const {newPassword } = req.body;
+  const findUser = await queryPromise("SELECT * FROM users WHERE user_id = ?", [
+    user_id,
+  ])
+
+  if (findUser.length === 0) {
+    return errorResponse(
+      res,
+      "No user found for this email",
+      StatusCodes.BAD_REQUEST
+    );
+  }
+
+  const passwordMatch = await comparePassword(newPassword, findUser[0].password_hash);
+
+  if (passwordMatch) {
+    return errorResponse(
+      res,
+      "New password cannot be same as old password",
+      StatusCodes.BAD_REQUEST
+    );
+  }
 
   // Update user password
   const hashedPassword = await hashPassword(newPassword);

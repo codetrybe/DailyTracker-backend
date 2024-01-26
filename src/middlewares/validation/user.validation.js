@@ -1,5 +1,5 @@
 import { body, validationResult } from "express-validator";
-import { errorResponse } from "../../utils/lib/response.js";
+import { errorResponse } from "../../utils/libs/response.js";
 import { StatusCodes } from "http-status-codes";
 
 const errorFormatter = ({ msg }) => {
@@ -14,12 +14,12 @@ const errorFormatter = ({ msg }) => {
  * @returns errorResponse | NextFunction
  */
 export const registerValidator = async (req, res, next) => {
-	const fullNameCheck = body("fullName", "FullName is required and must be at least 4 characters")
+	const fullNameCheck = body("fullname", "FullName is required and must be at least 4 characters")
     .trim()
     .notEmpty()
     .isLength({ min: 4 })
     .run(req);
-  const userNameCheck = body("userName", "UserName is required and must be at least 3 characters")
+  const userNameCheck = body("username", "UserName is required and must be at least 3 characters")
     .trim()
     .notEmpty()
     .isLength({ min: 3 })

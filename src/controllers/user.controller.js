@@ -16,7 +16,8 @@ const queryPromise = util.promisify(db.query).bind(db);
  * @returns successResponse | errorResponse
  */
 export const getUser = tryCatch(async (req, res) => {
-	const {user_id} = req.params;
+	// const {user_id} = req.params;
+  const { user_id } = req.app.get("user");
 	const userQuery = "SELECT * FROM users WHERE user_id = ?";
 	const user = await queryPromise(userQuery, [user_id]);
 	if (user.length === 0) {
@@ -33,7 +34,8 @@ export const getUser = tryCatch(async (req, res) => {
  * @returns successResponse | errorResponse
  */
 export const updateUser = tryCatch(async (req, res) => {
-  const { user_id } = req.params;
+  // const { user_id } = req.params;
+  const { user_id } = req.app.get("user");
   const restrictedFields = [
     "user_id",
     "username",
@@ -81,7 +83,8 @@ export const updateUser = tryCatch(async (req, res) => {
  * @returns successResponse | errorResponse
  */
 export const changePassword = tryCatch(async (req, res) => {
-  const { user_id } = req.params;
+  // const { user_id } = req.params;
+  const { user_id } = req.app.get("user");
   const { oldPassword, newPassword, confirmPassword } = req.body;
   const userQuery = "SELECT * FROM users WHERE user_id = ?";
   const user = await queryPromise(userQuery, [user_id]);
@@ -117,7 +120,8 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
  * @returns successResponse | errorResponse
  */
 export const deleteUser = tryCatch(async (req, res) => {
-  const { user_id } = req.params;
+  // const { user_id } = req.params;
+  const { user_id } = req.app.get("user");
   const userQuery = "SELECT * FROM users WHERE user_id = ?";
   const user = await queryPromise(userQuery, [user_id]);
   if (user.length === 0) {

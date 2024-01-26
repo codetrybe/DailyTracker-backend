@@ -1,4 +1,5 @@
 import { forgotpassword, login, register, resendEmailVerification, resetPassword, verifyEmail, verifyPasswordOtp } from "../controllers/userAuth.controller.js";
+import { userAuth } from "../middlewares/authorization/user.auth..js";
 import { loginValidator, registerValidator } from "../middlewares/validation/user.validation.js";
 
 export default (router) => {
@@ -8,6 +9,6 @@ export default (router) => {
   router.post("/users/login", loginValidator, login);
   router.post("/users/forgotPassword", forgotpassword);
   router.post("/users/verifyPasswordOtp", verifyPasswordOtp);
-  router.post("/users/:user_id/resetPassword", resetPassword);
+  router.post("/users/reset", userAuth, resetPassword);
 
 };
