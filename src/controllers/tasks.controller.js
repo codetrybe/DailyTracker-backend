@@ -1,7 +1,7 @@
-import db from '../config/db';
-import utils from '../utils';
+import db from '../config/db.js';
+import util from '../util';
 import tryCatch from '../utils/libs/tryCatch.js';
-import { errorResponse, successResponse } from '../utils/libs/response';
+import { errorResponse, successResponse } from '../utils/libs/response.js';
 import { statusCodes } from 'http-status-codes';
 
 const queryPromise = util.promisify(db.query).bind(db);
@@ -65,3 +65,10 @@ export const delete_task = tryCatch(async (req, res) => {
 
     return successResponse(res, statusCodes.OK, 'Task deleted successfully');
 });
+
+
+/**
+ * TODOS: Mr Whyte
+ * - add endpoint to get all tasks
+ * - add endpoint to get a single task
+ */
