@@ -1,0 +1,100 @@
+import db from './db.js';
+import util from 'util';
+
+
+const queryPromise = util.promisify(db.query).bind(db);
+/**
+ * insert into table
+ * select from table and based on condition
+ * Delete from table
+ * update table
+ */
+
+
+/**
+ * Function to delete rows from a table based on provided conditions.
+ * @param {string} tableName Name of the table from which data will be deleted.
+ * @param {Array<string>} conditions An array of conditions to be applied in the WHERE clause for filtering the rows to be deleted. Each condition should be in the form of a string representing a valid SQL condition.
+ * @returns {Promise<Array>} A promise that resolves to an array of rows affected by the deletion operation.
+ */
+const deleteFromTable = async (tableName, conditions = []) => {
+  // Construct the WHERE part of the query
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  console.log(whereClause)
+  // Construct the full SQL query
+  const query = `DELETE FROM ${tableName} ${whereClause}`;
+
+  // Execute the query
+  const result = await queryPromise(query);
+
+  return result;
+}
+
+
+/**
+ * Function to update columns in a table row based on provided fields and condition.
+ * @param {string} tableName Name of the table to update.
+ * @param {Array<Object>} fieldsToUpdate An array containing an object of fields to update along with their new values.
+ * @param {Array} condition The condition to be applied to filter the rows to be updated.
+ * @returns {Promise<Array>} A promise that resolves to an array of rows affected by the update operation.
+ */
+const updateTable = async (tableName, fieldsToUpdate, condition) => {
+  // Construct the SET part of the query
+  const setFields = fieldsToUpdate.map(field => `${field.field} = '${field.value}'`).join(', ');
+  
+  // Construct the full SQL query
+  const query = `UPDATE ${tableName} SET ${setFields} WHERE ${condition[0]} = ?`;
+  
+  // Execute the query with the values
+  const result = await queryPromise(query, [condition[1]]);
+
+
+  return result
+}
+ 
+
+/**
+ * Function to receive variable number of fields value and insert into a given table
+ * @param {string} tableName  Name of table to be inserted into
+ * @param {Array} listOfTableFields fields in table to inserted into
+ * @param {Array} listOfValuesToBeInserted values to be inserted into the fields
+ * @returns the result of the query
+ */
+const insertIntoTable = async (tableName, listOfTableFields, listOfValuesToBeInserted) =>{
+  const fields = listOfTableFields.join(', ')
+  const placeholders = listOfValuesToBeInserted.map(() => '?').join(', ');
+
+  const statement = `INSERT INTO ${tableName} (${fields}) VALUES (${placeholders})`
+
+  const result = await queryPromise(statement,  listOfValuesToBeInserted)
+
+  return result
+}
+
+/**
+ * 
+ * @param {string} tableName table name to select from
+ * @param {string} fields columns to be selected
+ * @param {string} condition condition to be used for filtering
+ * @returns selected rows
+ */
+const selectFromTable = async (tableName, fields='*', condition='') => {
+  const query = condition ? `SELECT ${fields} FROM ${tableName} WHERE ${condition}` : `SELECT ${fields} FROM ${tableName}`;
+
+  const result = await queryPromise(query);
+  return result;
+}
+
+const tableName = 'tasks';
+
+// Define the fields to update and their new values
+const listOfTableFields = ['task_name', 'list_id','status', 'reminder_option'];
+
+const listOfValuesToBeInserted = ['stepping up', '12', 'not done', '15 minutes']
+const condition = ['task_id > 39']
+
+const r = await selectFromTable(tableName, '*', 'list_id = 12');
+console.log(r)
+
+export { selectFromTable, deleteFromTable, updateTable, insertIntoTable }
