@@ -75,6 +75,7 @@ const insertIntoTable = async (tableName, listOfTableFields, listOfValuesToBeIns
 
 /**
  * 
+ * Function to select a row from a table
  * @param {string} tableName table name to select from
  * @param {string} fields columns to be selected
  * @param {string} condition condition to be used for filtering
