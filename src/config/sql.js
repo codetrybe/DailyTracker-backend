@@ -8,6 +8,7 @@ const queryPromise = util.promisify(db.query).bind(db);
  * select from table and based on condition
  * Delete from table
  * update table
+ * select from 2 tables based on condition
  */
 
 
@@ -86,15 +87,25 @@ const selectFromTable = async (tableName, fields='*', condition='') => {
   return result;
 }
 
-const tableName = 'tasks';
 
-// Define the fields to update and their new values
-const listOfTableFields = ['task_name', 'list_id','status', 'reminder_option'];
 
-const listOfValuesToBeInserted = ['stepping up', '12', 'not done', '15 minutes']
-const condition = ['task_id > 39']
+/**
+ * Asynchronus Function to select columns from 2 tables in the database
+ * @param {string} firstTable first table name to select from
+ * @param {string} secondTable  second table name to select from
+ * @param {string} fields columns to be selected
+ * @param {string} tablesbases how the tables is to be merged
+ * @param {string} condition condition to be used for filtering
+ * @returns a promise that resolves to an array of objects of the selected rows
+ */
+const selectFrom2Tables = async (firstTable, secondTable, fields='*', tablesbases='', condition='') => {
 
-const r = await selectFromTable(tableName, '*', 'list_id = 12');
-console.log(r)
+  const statement = condition ? `SELECT ${fields} FROM ${firstTable} JOIN ${secondTable} ON ${tablesbases} WHERE ${condition}` : `SELECT ${fields} FROM ${firstTable} JOIN ${secondTable} ON ${tablesbases}` 
 
-export { selectFromTable, deleteFromTable, updateTable, insertIntoTable }
+const result = await queryPromise(statement)
+
+return result
+}
+
+
+export { selectFromTable, deleteFromTable, updateTable, insertIntoTable, selectFrom2Tables }
