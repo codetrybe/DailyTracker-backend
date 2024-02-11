@@ -11,3 +11,17 @@ export default (router) => {
   router.post("/users/:user_id/resetPassword", resetPassword);
 
 };
+
+
+// CODE FOR THE TASK ROUTE
+// tasksRoutes.js
+
+const express = require('express');
+const router = express.Router();
+import { createTask } from '../controllers/tasksController';
+import userAuth from '../middleware/userAuth';
+
+// POST route to create a new task
+router.post('/tasks', userAuth, createTask);
+
+module.exports = router;
