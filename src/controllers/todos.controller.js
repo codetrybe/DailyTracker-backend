@@ -15,6 +15,12 @@ const queryPromise = util.promisify(db.query).bind(db);
  */
 export const createTodoList = tryCatch(async (req, res) => {
   const { list_name } = req.body;
+
+  // Validate list_name
+  if (!list_name) {
+    return errorResponse(res, 'Invalid list name', StatusCodes.BAD_REQUEST);
+}
+
   // assuming that the user is stored in req.app.token as seen in the authcontroller
   // However, I believe it should be the entire user object and not just the user
   const user_id = req.app.token;
