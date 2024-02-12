@@ -1,4 +1,4 @@
-
+import { add_task, get_all_tasks, get_single_task, edit_task, delete_task } from '../controllers/tasks.controller';
 
 export default (router) => {
 
