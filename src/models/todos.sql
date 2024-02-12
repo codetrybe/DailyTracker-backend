@@ -1,4 +1,12 @@
 -- Table for Todo Lists
+-- create a database called DailyTracker
+-- use DailyTracker
+-- create a table called events
+-- insert a record into the events table
+
+CREATE DATABASE IF NOT EXISTS DailyTracker;
+
+USE DailyTracker;
 
 CREATE TABLE IF NOT EXISTS todo_lists (
 	list_id INT PRIMARY KEY AUTO_INCREMENT,

@@ -1,4 +1,13 @@
 -- Table for users
+-- create a database called DailyTracker
+-- use DailyTracker
+-- create a table called events
+-- insert a record into the events table
+
+CREATE DATABASE IF NOT EXISTS DailyTracker;
+
+USE DailyTracker;
+
 CREATE TABLE IF NOT EXISTS users (
 	user_id VARCHAR(36) PRIMARY KEY,
 	fullname VARCHAR(255) NOT NULL,

@@ -1,4 +1,12 @@
--- Table for Tasks
+-- Table for Task
+-- create a database called DailyTracker
+-- use DailyTracker
+-- create a table called events
+-- insert a record into the events table
+
+CREATE DATABASE IF NOT EXISTS DailyTracker;
+
+USE DailyTracker;
 
 CREATE TABLE IF NOT EXISTS tasks (
 	tasks_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -12,6 +20,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 	FOREIGN KEY (list_id) REFERENCES todo_lists (list_id) ON DELETE CASCADE
 );
 
+INSERT INTO todo_lists (list_id) VALUES (1);
+
 INSERT INTO tasks (
 		list_id,
 		task_name,
@@ -21,7 +31,7 @@ VALUES (
 		1,
 		'Walk the dog',
 		'08:00:00'
-	)
+	);
 
 INSERT INTO tasks (
 		list_id,
@@ -32,7 +42,7 @@ VALUES (
 		1,
 		'Wash the car',
 		'09:00:00'
-	)
+	);
 
 UPDATE tasks
 SET reminder_option = '15_minutes'
