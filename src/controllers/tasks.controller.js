@@ -72,3 +72,23 @@ export const delete_task = tryCatch(async (req, res) => {
  * - add endpoint to get all tasks
  * - add endpoint to get a single task
  */
+
+export const get_all_tasks = tryCatch(async (req, res) => {
+    const getTasksQuery = `SELECT * FROM tasks`;
+    const tasks = await queryPromise(getTasksQuery);
+
+    return successResponse(res, statusCodes.OK, 'Tasks retrieved successfully', tasks);
+}
+);
+
+export const get_single_task = tryCatch(async (req, res) => {
+    const { task_id } = req.params;
+
+    const getTaskQuery = `SELECT * FROM tasks WHERE task_id = ?`;
+    const getTaskValues = [task_id];
+
+    const task = await queryPromise(getTaskQuery, getTaskValues);
+
+    return successResponse(res, statusCodes.OK, 'Task retrieved successfully', task[0]);
+}
+);
