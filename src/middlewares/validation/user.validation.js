@@ -94,4 +94,97 @@ export const updateValidator = async (req, res, next) => {
     return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
   }
   next();
+};
+
+// Task validation
+
+/**
+ * Validate add task request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const addTaskValidator = async (req, res, next) => {
+  const taskNameCheck = body("task_name", "TaskName is required and must be at least 4 characters")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 4})
+    .run(req);
+
+  await Promise.all([taskNameCheck])
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+/**
+ * Validate edit task request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const editTaskValidator = async (req, res, next) => {
+  const taskNameCheck = body("task_name", "TaskName is required")
+    .trim()
+    .notEmpty()
+    .run(req);
+
+  await Promise.all([taskNameCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+// Todo Validations
+
+/**
+ * Validate Create Todo request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const createTodoValidator = async (req, res, next) => {
+  const listNameCheck = body("list_name", "ListName is required and must be at least 4 characters")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 4 })
+    .run(req);
+
+  await Promise.all([listNameCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+/**
+ * Validate Create Todo request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const updateTodoValidator = async (req, res, next) => {
+  const listNameCheck = body("list_name", "ListName is required and must be at least 4 characters")
+    .optional()
+    .trim()
+    .notEmpty()
+    .isLength({ min: 4 })
+    .run(req);
+  const timeScheduledCheck = body("time_scheduled", "TimeScheduled is required and must be a valid date")
+    .isDate()
+    .optional()
+    .run(req);
+
+  await Promise.all([listNameCheck, timeScheduledCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
 }
+
