@@ -32,7 +32,16 @@ export const registerValidator = async (req, res, next) => {
     .trim()
     .isLength({ min: 8 })
     .run(req);
-  await Promise.all([fullNameCheck, userNameCheck, emailCheck, passwordCheck]);
+    const phoneNumberCheck = body("phone", "PhoneNumber must be in a valid format")
+    .optional()
+    .isMobilePhone()
+    .run(req);
+  const phoneNumber2Check = body("phone2", "PhoneNumber must be in a valid format")
+    .optional()
+    .isMobilePhone()
+    .run(req);
+
+  await Promise.all([fullNameCheck, userNameCheck, emailCheck, passwordCheck, phoneNumberCheck, phoneNumber2Check]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
 	return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
@@ -61,6 +70,7 @@ export const loginValidator = async (req, res, next) => {
     .trim()
     .isLength({ min: 8 })
     .run(req);
+
   await Promise.all([emailCheck, usernameCheck, passwordCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
@@ -96,7 +106,35 @@ export const updateValidator = async (req, res, next) => {
   next();
 };
 
-// Task validation
+/**
+ * Validate user password change request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const changePasswordValidator = async (req, res, next) => {
+  const oldPasswordCheck = body("password_hash", "Password must be atleast 8 characters")
+    .trim()
+    .isLength({ min: 8 })
+    .run(req);
+  const newPasswordCheck = body("new_password", "Password must be atleast 8 characters")
+    .trim()
+    .isLength({ min: 8 })
+    .run(req);
+  const confirmPasswordCheck = body("confirm_password", "Password must be atleast 8 characters")
+    .trim()
+    .isLength({ min: 8 })
+    .run(req);
+
+  await Promise.all([oldPasswordCheck, newPasswordCheck, confirmPasswordCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+// Task validations
 
 /**
  * Validate add task request body
@@ -186,5 +224,90 @@ export const updateTodoValidator = async (req, res, next) => {
     return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
   }
   next();
-}
+};
 
+/**
+ * Validate Users verify email request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const verifyEmailValidator = async (req, res, next) => {
+  const otpCheck = body("otp", "otp is required and must be exactly 6 characters")
+    .trim()
+    .notEmpty()
+    .isLength({ min: 6, max: 6})
+    .run(req);
+
+  await Promise.all([otpCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+/**
+ * Validate resend email verification request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const resendOtpValidator = async (req, res, next) => {
+  const emailCheck = body("email", "Invalid email address")
+    .isEmail()
+    .normalizeEmail()
+    .run(req);
+
+  await Promise.all([emailCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+/**
+ * Validate forgot password request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const forgotPasswordValidator = async (req, res, next) => {
+  const emailCheck = body("email", "Invalid email address")
+    .isEmail()
+    .normalizeEmail()
+    .run(req);
+
+  await Promise.all([emailCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
+
+/**
+ * Validate reset password request body
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns errorResponse | NextFunction
+ */
+export const resetPasswordValidator = async (req, res, next) => {
+  const newPasswordCheck = body("new_password", "Password must be atleast 8 characters")
+    .trim()
+    .isLength({ min: 8 })
+    .run(req);
+
+  const confirmPasswordCheck = body("confirm_password", "Password must be atleast 8 characters")
+    .trim()
+    .isLength({ min: 8 })
+    .run(req);
+
+  await Promise.all([newPasswordCheck, confirmPasswordCheck]);
+  const errors = validationResult(req).formatWith(errorFormatter);
+  if (!errors.isEmpty()) {
+    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+  }
+  next();
+};
