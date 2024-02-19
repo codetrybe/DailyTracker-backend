@@ -91,7 +91,7 @@ const selectFromTable = async (tableName, fields='*', condition='') => {
 
 
 /**
- * Asynchronus Function to select columns from 2 tables in the database
+ * Asynchronous Function to select columns from 2 tables in the database
  * @param {string} firstTable first table name to select from
  * @param {string} secondTable  second table name to select from
  * @param {string} fields columns to be selected

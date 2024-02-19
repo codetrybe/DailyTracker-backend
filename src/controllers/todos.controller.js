@@ -14,40 +14,29 @@ const queryPromise = util.promisify(db.query).bind(db);
  * @returns successResponse | errorResponse
  */
 export const createTodoList = tryCatch(async (req, res) => {
-  const { list_name } = req.body;
+  const { list_name, time_scheduled } = req.body;
   // assuming that the user is stored in req.app.token as seen in the authcontroller
   // However, I believe it should be the entire user object and not just the user
-  const user_id = req.app.token;
-  try {
+  const { user_id } = req.app.get("user");
+
     // Your logic to create a new Todo List in the database
-    const result = await queryPromise(
-      "INSERT INTO todo_lists (user_id, list_name, created_at, updated_at) VALUES (?, ?, ?, ?)",
-      [user_id, list_name, new Date(), new Date()]
+     await queryPromise(
+      "INSERT INTO todo_lists (user_id, list_name, time_scheduled) VALUES (?, ?, ?)",
+      [user_id, list_name, time_scheduled]
     );
 
-    // Assuming the result object has information about the created Todo List
-    const createdTodoList = {
-      list_id: result.insertId,
-      user_id,
-      list_name,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
+    // // Assuming the result object has information about the created Todo List
+    // const createdTodoList = {
+    //   list_id: result.insertId,
+    //   user_id,
+    //   list_name
+    // };
 
     return successResponse(
       res,
       "Todo List created successfully",
-      { data: createdTodoList },
       StatusCodes.CREATED
     );
-  } catch (error) {
-    console.error("Error creating Todo List:", error);
-    return errorResponse(
-      res,
-      "Failed to create Todo List",
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
 });
 
 /**
@@ -57,26 +46,29 @@ export const createTodoList = tryCatch(async (req, res) => {
  * @returns ISuccessResponse | IErrorResponse
  */
 export const getAllTodos = tryCatch(async (req, res) => {
-  const userId = req.params.userId;
+  // const userId = req.params.userId;
+
+  const { user_id } = req.app.get("user");
 
   // Check if user matching provided userId exists
   const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-  const user = await queryPromise(checkUserQuery, [userId]);
+  const user = await queryPromise(checkUserQuery, [user_id]);
 
   if (user.length === 0) {
     return errorResponse(res, "Invalid user", StatusCodes.NOT_FOUND);
   }
 
   // Get all todos for user with matching userId
-  const getTodoQuery =
-    "SELECT todo_lists.* FROM todo_lists JOIN users ON todo_lists.user_id = users.user_id WHERE users.user_id = ?";
-  const todoList = await queryPromise(getTodoQuery, [userId]);
+  // const getTodoQuery =
+  //   "SELECT todo_lists.* FROM todo_lists JOIN users ON todo_lists.user_id = users.user_id WHERE users.user_id = ?";
+  const getTodoQuery = "SELECT * FROM todo_lists WHERE user_id = ?";
+  const todoList = await queryPromise(getTodoQuery, [user_id]);
 
-  if (todoList.length > 0) {
+  // if (todoList.length > 0) {
     return successResponse(res, "Request successful", todoList);
-  }
+  // }
 
-  return errorResponse(res, "List empty", StatusCodes.NOT_FOUND);
+  // return errorResponse(res, "List empty", StatusCodes.NOT_FOUND);
 });
 
 /**
@@ -86,8 +78,9 @@ export const getAllTodos = tryCatch(async (req, res) => {
  * @returns ISuccessResponse | IErrorResponse
  */
 export const getTodo = tryCatch(async (req, res) => {
-  const userId = req.params.userId;
-  const listId = req.params.listId;
+  // const userId = req.params.userId;
+  const userId = req.app.get("user").user_id;
+  const listId = req.params.list_id;
 
   // Check if user matching provided userId exists
   const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
@@ -122,8 +115,9 @@ export const getTodo = tryCatch(async (req, res) => {
 export const updateTodo = tryCatch(async (req, res) => {
   const restrictedFields = ["list_id", "user_id", "created_at", "updated_at"];
 
-  const userId = req.params.userId;
-  const listId = req.params.listId;
+  // const userId = req.params.userId;
+  const userId = req.app.get("user").user_id;
+  const listId = req.params.list_id;
   const requestBody = req.body;
 
   // Check if user matching provided userId exists
@@ -165,7 +159,7 @@ export const updateTodo = tryCatch(async (req, res) => {
     listId,
   ]);
 
-  return successResponse(res, "List updated successfully, {}");
+  return successResponse(res, "List updated successfully");
 });
 
 /**

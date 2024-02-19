@@ -2,8 +2,8 @@ import { changePassword, deleteUser, getUser, updateUser } from "../controllers/
 import { userAuth } from "../middlewares/authorization/user.auth..js";
 
 export default (router) => {
-	router.get("/users/:user_id", userAuth, getUser);
-	router.put("/users/:user_id", userAuth, updateUser);
-	router.put("/users/:user_id/changePassword", userAuth, changePassword);
-	router.delete("/users/:user_id", userAuth, deleteUser);
+	router.get("/users", userAuth, getUser);
+	router.put("/users", userAuth, updateUser);
+	router.put("/users/changePassword", userAuth, changePassword);
+	router.delete("/users", userAuth, deleteUser);
 };

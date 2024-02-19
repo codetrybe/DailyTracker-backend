@@ -200,16 +200,15 @@ export const login = tryCatch(async (req, res) => {
    * - you are required to login with email and password or username and password  and not both
    * - the validation will be implemented in a middleware
    */
-  const { email, username, password_hash } = req.body;
+  const { email, password_hash } = req.body;
 
   //Takes care of instances where users use email or username
-  const emailOrUsername = email || username;
+  // const emailOrUsername = email || username;
 
   // Find the user with the given email in the database
-  const selectUserQuery = "SELECT * FROM users WHERE email = ? OR username = ?";
+  const selectUserQuery = "SELECT * FROM users WHERE email = ?";
   const user = await queryPromise(selectUserQuery, [
-    emailOrUsername,
-    emailOrUsername,
+    email
   ]);
   if (user.length === 0) {
     return errorResponse(

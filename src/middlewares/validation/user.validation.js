@@ -113,15 +113,15 @@ export const updateValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const changePasswordValidator = async (req, res, next) => {
-  const oldPasswordCheck = body("password_hash", "Password must be atleast 8 characters")
+  const oldPasswordCheck = body("password_hash", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 })
     .run(req);
-  const newPasswordCheck = body("new_password", "Password must be atleast 8 characters")
+  const newPasswordCheck = body("new_password", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 })
     .run(req);
-  const confirmPasswordCheck = body("confirm_password", "Password must be atleast 8 characters")
+  const confirmPasswordCheck = body("confirm_password", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 })
     .run(req);
@@ -135,6 +135,10 @@ export const changePasswordValidator = async (req, res, next) => {
 };
 
 // Task validations
+/**
+ * TODO:
+ * Create a new file for task validations (task.validation.js)
+ */
 
 /**
  * Validate add task request body
@@ -178,7 +182,10 @@ export const editTaskValidator = async (req, res, next) => {
 };
 
 // Todo Validations
-
+/**
+ * TODO:
+ * Create a new file for todo validations (todo.validation.js)
+ */
 /**
  * Validate Create Todo request body
  * @param  req - The request object
@@ -294,12 +301,12 @@ export const forgotPasswordValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const resetPasswordValidator = async (req, res, next) => {
-  const newPasswordCheck = body("new_password", "Password must be atleast 8 characters")
+  const newPasswordCheck = body("new_password", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 })
     .run(req);
 
-  const confirmPasswordCheck = body("confirm_password", "Password must be atleast 8 characters")
+  const confirmPasswordCheck = body("confirm_password", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 })
     .run(req);
