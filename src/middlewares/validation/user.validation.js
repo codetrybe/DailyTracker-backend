@@ -40,8 +40,23 @@ export const registerValidator = async (req, res, next) => {
     .optional()
     .isMobilePhone()
     .run(req);
+  const locationCheck = body("location", "Location is required")
+    .optional()
+    .trim()
+    .notEmpty()
+    .run(req);
+  const profilePicCheck = body("profile_pic", "ProfilePic is required")
+    .optional()
+    .trim()
+    .notEmpty()
+    .run(req);
 
-  await Promise.all([fullNameCheck, userNameCheck, emailCheck, passwordCheck, phoneNumberCheck, phoneNumber2Check]);
+  await Promise.all([
+    fullNameCheck, userNameCheck, emailCheck,
+    passwordCheck, phoneNumberCheck, phoneNumber2Check,
+    locationCheck, profilePicCheck
+  ]);
+
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
 	return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
@@ -92,13 +107,26 @@ export const updateValidator = async (req, res, next) => {
     .notEmpty()
     .isLength({ min: 4 })
     .run(req);
-  
-  const phoneNumberCheck = body("phone", "PhoneNumber is required")
+  const phoneNumberCheck = body("phone", "PhoneNumber must be in a valid format")
     .optional()
     .isMobilePhone()
     .run(req);
+  const phoneNumber2Check = body("phone2", "PhoneNumber must be in a valid format")
+    .optional()
+    .isMobilePhone()
+    .run(req);
+  const locationCheck = body("location", "Location is required")
+    .optional()
+    .trim()
+    .notEmpty()
+    .run(req);
+  const profilePicCheck = body("profile_pic", "ProfilePic is required")
+    .optional()
+    .trim()
+    .notEmpty()
+    .run(req);
   
-  await Promise.all([fullNameCheck, phoneNumberCheck]);
+  await Promise.all([fullNameCheck, phoneNumberCheck, phoneNumber2Check, locationCheck, profilePicCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
     return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
@@ -127,105 +155,6 @@ export const changePasswordValidator = async (req, res, next) => {
     .run(req);
 
   await Promise.all([oldPasswordCheck, newPasswordCheck, confirmPasswordCheck]);
-  const errors = validationResult(req).formatWith(errorFormatter);
-  if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
-  }
-  next();
-};
-
-// Task validations
-/**
- * TODO:
- * Create a new file for task validations (task.validation.js)
- */
-
-/**
- * Validate add task request body
- * @param  req - The request object
- * @param  res - The response object
- * @returns errorResponse | NextFunction
- */
-export const addTaskValidator = async (req, res, next) => {
-  const taskNameCheck = body("task_name", "TaskName is required and must be at least 4 characters")
-    .trim()
-    .notEmpty()
-    .isLength({ min: 4})
-    .run(req);
-
-  await Promise.all([taskNameCheck])
-  const errors = validationResult(req).formatWith(errorFormatter);
-  if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
-  }
-  next();
-};
-
-/**
- * Validate edit task request body
- * @param  req - The request object
- * @param  res - The response object
- * @returns errorResponse | NextFunction
- */
-export const editTaskValidator = async (req, res, next) => {
-  const taskNameCheck = body("task_name", "TaskName is required")
-    .trim()
-    .notEmpty()
-    .run(req);
-
-  await Promise.all([taskNameCheck]);
-  const errors = validationResult(req).formatWith(errorFormatter);
-  if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
-  }
-  next();
-};
-
-// Todo Validations
-/**
- * TODO:
- * Create a new file for todo validations (todo.validation.js)
- */
-/**
- * Validate Create Todo request body
- * @param  req - The request object
- * @param  res - The response object
- * @returns errorResponse | NextFunction
- */
-export const createTodoValidator = async (req, res, next) => {
-  const listNameCheck = body("list_name", "ListName is required and must be at least 4 characters")
-    .trim()
-    .notEmpty()
-    .isLength({ min: 4 })
-    .run(req);
-
-  await Promise.all([listNameCheck]);
-  const errors = validationResult(req).formatWith(errorFormatter);
-  if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
-  }
-  next();
-};
-
-/**
- * Validate Create Todo request body
- * @param  req - The request object
- * @param  res - The response object
- * @returns errorResponse | NextFunction
- */
-export const updateTodoValidator = async (req, res, next) => {
-  const listNameCheck = body("list_name", "ListName is required and must be at least 4 characters")
-    .optional()
-    .trim()
-    .notEmpty()
-    .isLength({ min: 4 })
-    .run(req);
-  const timeScheduledCheck = body("time_scheduled", "TimeScheduled is required and must be a valid date")
-    .isDate()
-    .optional()
-    .run(req);
-
-  await Promise.all([listNameCheck, timeScheduledCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
     return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
@@ -318,3 +247,10 @@ export const resetPasswordValidator = async (req, res, next) => {
   }
   next();
 };
+
+/**
+ * TODO:
+ * update prodile_pic validation
+ * -- How will the profile pic be passed?
+ * -- As a link?
+ */
