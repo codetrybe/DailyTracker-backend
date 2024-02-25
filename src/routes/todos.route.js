@@ -6,7 +6,7 @@ import {
   deleteTodo,
 } from "../controllers/todos.controller.js";
 import { userAuth } from "../middlewares/authorization/user.auth..js";
-import { createTodoValidator } from "../middlewares/validation/user.validation.js";
+import { createTodoValidator } from "../middlewares/validation/todo.validation.js";
 
 export default (router) => {
   router.post("/todo",createTodoValidator, userAuth, createTodoList);
