@@ -2,13 +2,19 @@ import { StatusCodes } from "http-status-codes";
 import db from "../config/db.js";
 import { errorResponse, successResponse } from "../utils/libs/response.js";
 import tryCatch from "../utils/libs/tryCatch.js";
-import { comparePassword, hashPassword } from "../utils/helpers/bcrypt.helper.js";
+import {
+  comparePassword,
+  hashPassword,
+} from "../utils/helpers/bcrypt.helper.js";
 import { v4 as uuid } from "uuid";
 import util from "util";
 import speakeasy from "speakeasy";
 import { sendEmail } from "../services/email.service.js";
 import { generateToken } from "../utils/helpers/jwt.helper.js";
 import { removePasswordFromUser } from "../utils/helpers/user.helper.js";
+import cloudinary from "../config/cloudinary.config.js";
+import fs from "fs";
+
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
 
@@ -79,7 +85,6 @@ export const register = tryCatch(async (req, res) => {
   const expiration = new Date();
   expiration.setMinutes(expiration.getMinutes() + 5);
 
-
   // Save OTP and expiration in the database
   await queryPromise(
     "INSERT INTO otp(user_id, otp, expired_at) VALUES (?, ?, ?)",
@@ -105,7 +110,7 @@ export const register = tryCatch(async (req, res) => {
 });
 
 /**
- * Verify email 
+ * Verify email
  * @param  req - The request object
  * @param  res - The response object
  * @returns successResponse | errorResponse
@@ -114,14 +119,18 @@ export const verifyEmail = tryCatch(async (req, res) => {
   const { otp } = req.body;
 
   const findOtp = await queryPromise("SELECT * FROM otp WHERE otp = ?", [otp]);
-  console.log(findOtp)
+  console.log(findOtp);
   if (findOtp.length == 0) {
     return errorResponse(res, "Invalid OTP", StatusCodes.BAD_REQUEST);
   }
 
   // check if otp is active
   if (findOtp[0].status == "active") {
-    return errorResponse(res, "Your account is already verified, please login", StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      "Your account is already verified, please login",
+      StatusCodes.BAD_REQUEST
+    );
   }
 
   // check if otp has expired
@@ -142,11 +151,14 @@ export const verifyEmail = tryCatch(async (req, res) => {
 
   const token = generateToken({ user_id: findOtp[0].user_id }, "24h");
 
-  return successResponse(res, "Email verified successfully",  {data: {user: findOtp[0].user_id}, token}, );
+  return successResponse(res, "Email verified successfully", {
+    data: { user: findOtp[0].user_id },
+    token,
+  });
 });
 
 /**
- * Resend Email Verification 
+ * Resend Email Verification
  * @param  req - The request object
  * @param  res - The response object
  * @returns successResponse | errorResponse
@@ -157,7 +169,7 @@ export const resendEmailVerification = tryCatch(async (req, res) => {
   const user = await queryPromise("SELECT * FROM users WHERE email = ?", [
     email,
   ]);
-  if (user.length == 0) { 
+  if (user.length == 0) {
     return errorResponse(
       res,
       "No user found for this email",
@@ -207,9 +219,7 @@ export const login = tryCatch(async (req, res) => {
 
   // Find the user with the given email in the database
   const selectUserQuery = "SELECT * FROM users WHERE email = ?";
-  const user = await queryPromise(selectUserQuery, [
-    email
-  ]);
+  const user = await queryPromise(selectUserQuery, [email]);
   if (user.length === 0) {
     return errorResponse(
       res,
@@ -217,7 +227,10 @@ export const login = tryCatch(async (req, res) => {
       StatusCodes.UNAUTHORIZED
     );
   }
-  const passwordMatch = await comparePassword(password_hash, user[0].password_hash);
+  const passwordMatch = await comparePassword(
+    password_hash,
+    user[0].password_hash
+  );
 
   if (!passwordMatch) {
     return errorResponse(
@@ -232,11 +245,14 @@ export const login = tryCatch(async (req, res) => {
     "1h"
   );
 
-  return successResponse(res, "Login successful", {data:{user: removePasswordFromUser(user[0])}, token});
+  return successResponse(res, "Login successful", {
+    data: { user: removePasswordFromUser(user[0]) },
+    token,
+  });
 });
 
 /**
- * Forgot password 
+ * Forgot password
  * @param  req - The request object
  * @param  res - The response object
  * @returns successResponse | errorResponse
@@ -261,7 +277,6 @@ export const forgotpassword = tryCatch(async (req, res) => {
     encoding: "base32",
   });
 
-
   // Set OTP expiration (e.g., 5 minutes from now)
   const expiration = new Date();
   expiration.setMinutes(expiration.getMinutes() + 60);
@@ -273,10 +288,18 @@ export const forgotpassword = tryCatch(async (req, res) => {
   );
 
   // now we can send OTP to users email
-  await sendEmail(email, "OTP for Registration", `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`);
+  await sendEmail(
+    email,
+    "OTP for Registration",
+    `<h1>Your OTP for registration is: ${otp}</h1>. <br>It will expire in 5 minutes.`
+  );
 
   console.log(otp);
-  return successResponse(res, "OTP sent successfully, please check your email", {});
+  return successResponse(
+    res,
+    "OTP sent successfully, please check your email",
+    {}
+  );
 });
 
 /**
@@ -305,7 +328,7 @@ export const verifyPasswordOtp = tryCatch(async (req, res) => {
 
   const token = generateToken({ userId: findOtp[0].user_id }, "1h");
 
-  return successResponse(res, "Password OTP verified successfully", {token});
+  return successResponse(res, "Password OTP verified successfully", { token });
 });
 
 /**
@@ -316,12 +339,12 @@ export const verifyPasswordOtp = tryCatch(async (req, res) => {
  */
 export const resetPassword = tryCatch(async (req, res) => {
   // const { user_id } = req.params;
-  const { user_id }  = req.app.get("user");
-  console.log({user_id});
-  const {newPassword } = req.body;
+  const { user_id } = req.app.get("user");
+  console.log({ user_id });
+  const { newPassword } = req.body;
   const findUser = await queryPromise("SELECT * FROM users WHERE user_id = ?", [
     user_id,
-  ])
+  ]);
 
   if (findUser.length === 0) {
     return errorResponse(
@@ -331,7 +354,10 @@ export const resetPassword = tryCatch(async (req, res) => {
     );
   }
 
-  const passwordMatch = await comparePassword(newPassword, findUser[0].password_hash);
+  const passwordMatch = await comparePassword(
+    newPassword,
+    findUser[0].password_hash
+  );
 
   if (passwordMatch) {
     return errorResponse(
@@ -351,8 +377,48 @@ export const resetPassword = tryCatch(async (req, res) => {
   return successResponse(res, "Password reset successfully", {});
 });
 
+/**
+ * Upload Profile Picture through cloudinary
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 
+export const uploadProfilePic = async (req, res) => {
+  const { user_id } = req.app.get("user");
 
+  if (!req.file) {
+    return errorResponse(res, "No file uploaded", StatusCodes.BAD_REQUEST);
+  }
 
+  try {
+    // Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
 
+    // Remove the local file after successful upload to Cloudinary
+    fs.unlinkSync(req.file.path); // Synchronously delete the file
 
+    // Update the user's profile pic in the database
+    await updateUserProfilePic(result.secure_url, user_id);
+
+    return successResponse(res, "Profile picture updated successfully", {});
+  } catch (error) {
+    return errorResponse(
+      res,
+      "Error uploading image to Cloudinary",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+};
+
+async function updateUserProfilePic(profilePicUrl, userId) {
+  try {
+    // Update user's profile pic in the database
+    await queryPromise("UPDATE users SET profile_pic = ? WHERE user_id = ?", [
+      profilePicUrl,
+      userId,
+    ]);
+  } catch (error) {
+    throw new Error("Error updating user profile pic in the database");
+  }
+}
