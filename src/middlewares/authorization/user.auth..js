@@ -34,7 +34,6 @@ export const userAuth = async(req, res, next) => {
 		if (user.length === 0) {
 			return errorResponse(res, "The user does not exist", StatusCodes.NOT_FOUND)
 		}
-		console.log(user[0])
 		req.app.set("user", user[0]);		
 		next();
 	} catch (error) {
