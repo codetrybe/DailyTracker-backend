@@ -25,16 +25,28 @@ const queryPromise = util.promisify(db.query).bind(db);
  * @returns successResponse | errorResponse
  */
 export const register = tryCatch(async (req, res) => {
-  const {
-    fullname,
-    username,
-    email,
-    password_hash,
-    phone,
-    phone2,
-    location,
-    profile_pic,
-  } = req.body;
+  const { fullname, username, email, password_hash, phone, phone2, location } =
+    req.body;
+  let file_path = req.file ? req.file.path : null;
+  let profile_pic;
+  if (file_path) {
+    try {
+      const result = await cloudinary.uploader.upload(file_path);
+      profile_pic = result.secure_url;
+      try {
+        fs.unlinkSync(req.file.path); // Attempt to delete the local file
+      } catch (err) {
+        console.error("Error deleting local file:", err);
+      }
+    } catch (uploadError) {
+      console.error("Error uploading file to Cloudinary:", uploadError);
+      // Handle the upload error, e.g., by sending a response indicating failure
+      return res.status(500).json({ message: "Failed to upload image" });
+    }
+  } else {
+    profile_pic =
+      "https://res.cloudinary.com/dzvqsdoxy/image/upload/v1709499379/j15ojpguyxfah9wqpcgz.jpg";
+  }
 
   // Check if the email already exists in the database
   const existingUser = await queryPromise(
@@ -377,48 +389,3 @@ export const resetPassword = tryCatch(async (req, res) => {
   return successResponse(res, "Password reset successfully", {});
 });
 
-/**
- * Upload Profile Picture through cloudinary
- * @param  req - The request object
- * @param  res - The response object
- * @returns successResponse | errorResponse
- */
-
-export const uploadProfilePic = async (req, res) => {
-  const { user_id } = req.app.get("user");
-
-  if (!req.file) {
-    return errorResponse(res, "No file uploaded", StatusCodes.BAD_REQUEST);
-  }
-
-  try {
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path);
-
-    // Remove the local file after successful upload to Cloudinary
-    fs.unlinkSync(req.file.path); // Synchronously delete the file
-
-    // Update the user's profile pic in the database
-    await updateUserProfilePic(result.secure_url, user_id);
-
-    return successResponse(res, "Profile picture updated successfully", {});
-  } catch (error) {
-    return errorResponse(
-      res,
-      "Error uploading image to Cloudinary",
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-};
-
-async function updateUserProfilePic(profilePicUrl, userId) {
-  try {
-    // Update user's profile pic in the database
-    await queryPromise("UPDATE users SET profile_pic = ? WHERE user_id = ?", [
-      profilePicUrl,
-      userId,
-    ]);
-  } catch (error) {
-    throw new Error("Error updating user profile pic in the database");
-  }
-}
