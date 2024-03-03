@@ -92,7 +92,7 @@ export const getTodo = tryCatch(async (req, res) => {
 
   // Find todo list matching userId and listID.
   const getTodoQuery =
-    "SELECT todo_lists.* FROM todo_lists JOIN users ON todo_lists.user_id = users.user_id WHERE users.user_id = ? AND todo_lists.list_id = ?";
+    "SELECT * FROM todo_lists  WHERE user_id = ? AND list_id = ?";
 
   const queriedTodo = await queryPromise(getTodoQuery, [userId, listId]);
   if (queriedTodo.length === 0) {
@@ -130,7 +130,7 @@ export const updateTodo = tryCatch(async (req, res) => {
 
   // Find todo list matching userId and listID. Return error if not found.
   const getTodoQuery =
-    "SELECT todo_lists.* FROM todo_lists JOIN users ON todo_lists.user_id = users.user_id WHERE users.user_id = ? AND todo_lists.list_id = ?";
+    "SELECT * FROM todo_lists WHERE user_id = ? AND list_id = ?";
 
   const todoStatus = await queryPromise(getTodoQuery, [userId, listId]);
   if (todoStatus.length === 0) {
