@@ -14,7 +14,6 @@ const errorFormatter = ({ msg }) => {
  * @returns errorResponse | NextFunction
  */
 export const registerValidator = async (req, res, next) => {
-  console.log("req.body", req.body);
   const fullNameCheck = body(
     "fullname",
     "FullName is required and must be at least 4 characters"
