@@ -7,7 +7,12 @@ import { insertIntoTable } from "../config/sql.js";
 
 const queryPromise = util.promisify(db.query).bind(db);
 
-// Create a new task
+/**
+ * Create a new task
+ * @param  req - The request object
+ * @param  res - The response object
+ * @returns successResponse | errorResponse
+ */
 export const add_task = tryCatch(async (req, res) => {
   const listId = req.params.list_id;
   const { task_name, time_scheduled } = req.body;
