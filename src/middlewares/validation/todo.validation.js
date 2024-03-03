@@ -24,7 +24,8 @@ export const createTodoValidator = async (req, res, next) => {
     .isLength({ min: 4 })
     .run(req);
   const timeScheduledCheck = body("time_scheduled", "TimeScheduled is required and must be a valid date")
-    .isDate()
+    .trim()
+    .notEmpty()
     .run(req);
 
   await Promise.all([listNameCheck, timeScheduledCheck]);

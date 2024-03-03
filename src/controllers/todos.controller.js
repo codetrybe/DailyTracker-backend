@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import db from "../config/db.js";
 import tryCatch from "../utils/libs/tryCatch.js";
 import util from "util";
+import { insertIntoTable } from "../config/sql.js";
 
 // Converting db.query to promise based function
 const queryPromise = util.promisify(db.query).bind(db);
@@ -20,10 +21,12 @@ export const createTodoList = tryCatch(async (req, res) => {
   const { user_id } = req.app.get("user");
 
     // Your logic to create a new Todo List in the database
-     await queryPromise(
-      "INSERT INTO todo_lists (user_id, list_name, time_scheduled) VALUES (?, ?, ?)",
-      [user_id, list_name, time_scheduled]
-    );
+    //  await queryPromise(
+    //   "INSERT INTO todo_lists (user_id, list_name, time_scheduled) VALUES (?, ?, ?)",
+    //   [user_id, list_name, time_scheduled]
+    // );
+
+    insertIntoTable("todo_lists", ["user_id", "list_name", "time_scheduled"], [user_id, list_name, time_scheduled]);
 
     // // Assuming the result object has information about the created Todo List
     // const createdTodoList = {
