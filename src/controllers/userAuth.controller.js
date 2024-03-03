@@ -34,7 +34,7 @@ export const register = tryCatch(async (req, res) => {
       const result = await cloudinary.uploader.upload(file_path);
       profile_pic = result.secure_url;
       try {
-        fs.unlinkSync(req.file.path); // Attempt to delete the local file
+        fs.unlinkSync(file_path); // Attempt to delete the local file
       } catch (err) {
         console.error("Error deleting local file:", err);
       }
@@ -388,4 +388,3 @@ export const resetPassword = tryCatch(async (req, res) => {
 
   return successResponse(res, "Password reset successfully", {});
 });
-
