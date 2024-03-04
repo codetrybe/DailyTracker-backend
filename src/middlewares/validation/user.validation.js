@@ -14,12 +14,18 @@ const errorFormatter = ({ msg }) => {
  * @returns errorResponse | NextFunction
  */
 export const registerValidator = async (req, res, next) => {
-	const fullNameCheck = body("fullname", "FullName is required and must be at least 4 characters")
+  const fullNameCheck = body(
+    "fullname",
+    "FullName is required and must be at least 4 characters"
+  )
     .trim()
     .notEmpty()
     .isLength({ min: 4 })
     .run(req);
-  const userNameCheck = body("username", "UserName is required and must be at least 3 characters")
+  const userNameCheck = body(
+    "username",
+    "UserName is required and must be at least 3 characters"
+  )
     .trim()
     .notEmpty()
     .isLength({ min: 3 })
@@ -28,15 +34,24 @@ export const registerValidator = async (req, res, next) => {
     .isEmail()
     .normalizeEmail()
     .run(req);
-  const passwordCheck = body("password_hash", "Password must be at least 8 characters")
+  const passwordCheck = body(
+    "password_hash",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
-    const phoneNumberCheck = body("phone", "PhoneNumber must be in a valid format")
+  const phoneNumberCheck = body(
+    "phone",
+    "PhoneNumber must be in a valid format"
+  )
     .optional()
     .isMobilePhone()
     .run(req);
-  const phoneNumber2Check = body("phone2", "PhoneNumber must be in a valid format")
+  const phoneNumber2Check = body(
+    "phone2",
+    "PhoneNumber must be in a valid format"
+  )
     .optional()
     .isMobilePhone()
     .run(req);
@@ -45,21 +60,24 @@ export const registerValidator = async (req, res, next) => {
     .trim()
     .notEmpty()
     .run(req);
-  const profilePicCheck = body("profile_pic", "ProfilePic is required")
-    .optional()
-    .trim()
-    .notEmpty()
-    .run(req);
 
   await Promise.all([
-    fullNameCheck, userNameCheck, emailCheck,
-    passwordCheck, phoneNumberCheck, phoneNumber2Check,
-    locationCheck, profilePicCheck
+    fullNameCheck,
+    userNameCheck,
+    emailCheck,
+    passwordCheck,
+    phoneNumberCheck,
+    phoneNumber2Check,
+    locationCheck,
   ]);
 
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-	return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -81,7 +99,10 @@ export const loginValidator = async (req, res, next) => {
     .trim()
     .notEmpty()
     .run(req);
-  const passwordCheck = body("password_hash", "Password must be at least 8 characters")
+  const passwordCheck = body(
+    "password_hash",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
@@ -89,7 +110,11 @@ export const loginValidator = async (req, res, next) => {
   await Promise.all([emailCheck, usernameCheck, passwordCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -101,17 +126,26 @@ export const loginValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const updateValidator = async (req, res, next) => {
-  const fullNameCheck = body("fullName", "FullName is required and must be at least 4 characters")
+  const fullNameCheck = body(
+    "fullName",
+    "FullName is required and must be at least 4 characters"
+  )
     .optional()
     .trim()
     .notEmpty()
     .isLength({ min: 4 })
     .run(req);
-  const phoneNumberCheck = body("phone", "PhoneNumber must be in a valid format")
+  const phoneNumberCheck = body(
+    "phone",
+    "PhoneNumber must be in a valid format"
+  )
     .optional()
     .isMobilePhone()
     .run(req);
-  const phoneNumber2Check = body("phone2", "PhoneNumber must be in a valid format")
+  const phoneNumber2Check = body(
+    "phone2",
+    "PhoneNumber must be in a valid format"
+  )
     .optional()
     .isMobilePhone()
     .run(req);
@@ -125,11 +159,21 @@ export const updateValidator = async (req, res, next) => {
     .trim()
     .notEmpty()
     .run(req);
-  
-  await Promise.all([fullNameCheck, phoneNumberCheck, phoneNumber2Check, locationCheck, profilePicCheck]);
+
+  await Promise.all([
+    fullNameCheck,
+    phoneNumberCheck,
+    phoneNumber2Check,
+    locationCheck,
+    profilePicCheck,
+  ]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(", "), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -141,15 +185,24 @@ export const updateValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const changePasswordValidator = async (req, res, next) => {
-  const oldPasswordCheck = body("password_hash", "Password must be at least 8 characters")
+  const oldPasswordCheck = body(
+    "password_hash",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
-  const newPasswordCheck = body("new_password", "Password must be at least 8 characters")
+  const newPasswordCheck = body(
+    "new_password",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
-  const confirmPasswordCheck = body("confirm_password", "Password must be at least 8 characters")
+  const confirmPasswordCheck = body(
+    "confirm_password",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
@@ -157,7 +210,11 @@ export const changePasswordValidator = async (req, res, next) => {
   await Promise.all([oldPasswordCheck, newPasswordCheck, confirmPasswordCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -169,16 +226,23 @@ export const changePasswordValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const verifyEmailValidator = async (req, res, next) => {
-  const otpCheck = body("otp", "otp is required and must be exactly 6 characters")
+  const otpCheck = body(
+    "otp",
+    "otp is required and must be exactly 6 characters"
+  )
     .trim()
     .notEmpty()
-    .isLength({ min: 6, max: 6})
+    .isLength({ min: 6, max: 6 })
     .run(req);
 
   await Promise.all([otpCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -198,7 +262,11 @@ export const resendOtpValidator = async (req, res, next) => {
   await Promise.all([emailCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -218,7 +286,11 @@ export const forgotPasswordValidator = async (req, res, next) => {
   await Promise.all([emailCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
@@ -230,12 +302,18 @@ export const forgotPasswordValidator = async (req, res, next) => {
  * @returns errorResponse | NextFunction
  */
 export const resetPasswordValidator = async (req, res, next) => {
-  const newPasswordCheck = body("new_password", "Password must be at least 8 characters")
+  const newPasswordCheck = body(
+    "new_password",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
 
-  const confirmPasswordCheck = body("confirm_password", "Password must be at least 8 characters")
+  const confirmPasswordCheck = body(
+    "confirm_password",
+    "Password must be at least 8 characters"
+  )
     .trim()
     .isLength({ min: 8 })
     .run(req);
@@ -243,7 +321,11 @@ export const resetPasswordValidator = async (req, res, next) => {
   await Promise.all([newPasswordCheck, confirmPasswordCheck]);
   const errors = validationResult(req).formatWith(errorFormatter);
   if (!errors.isEmpty()) {
-    return errorResponse(res, errors.array().join(', '), StatusCodes.BAD_REQUEST);
+    return errorResponse(
+      res,
+      errors.array().join(", "),
+      StatusCodes.BAD_REQUEST
+    );
   }
   next();
 };
