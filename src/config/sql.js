@@ -32,26 +32,33 @@ const deleteFromTable = async (tableName, conditions = []) => {
   return result;
 }
 
-
+ 
 /**
- * Function to update columns in a table row based on provided fields and condition.
+ * Function to update columns in a table row based on provided fields and conditions.
  * @param {string} tableName Name of the table to update.
- * @param {Array<Object>} fieldsToUpdate An array containing an object of fields to update along with their new values.
- * @param {Array} condition The condition to be applied to filter the rows to be updated.
+ * @param {Array<Object>} fieldsToUpdate An array containing objects of fields to update along with their new values.
+ * @param {Array<Array>} conditions An array of conditions to be applied to filter the rows to be updated. Each condition should be an array with two elements: the column name and the condition value.
  * @returns {Promise<Array>} A promise that resolves to an array of rows affected by the update operation.
+ * 
+ * Example Usage => see the sqlusage.example.js
+ * 
  */
-const updateTable = async (tableName, fieldsToUpdate, condition) => {
+const updateTable = async (tableName, fieldsToUpdate, conditions) => {
   // Construct the SET part of the query
   const setFields = fieldsToUpdate.map(field => `${field.field} = '${field.value}'`).join(', ');
+  console.log(setFields)
   
+  // Construct the WHERE part of the query
+  const whereConditions = conditions.map(condition => `${condition[0]} = '${condition[1]}'`).join(' AND ');
+  console.log(whereConditions)
+
   // Construct the full SQL query
-  const query = `UPDATE ${tableName} SET ${setFields} WHERE ${condition[0]} = ?`;
+  const query = `UPDATE ${tableName} SET ${setFields} WHERE ${whereConditions}`;
   
   // Execute the query with the values
-  const result = await queryPromise(query, [condition[1]]);
+  const result = await queryPromise(query);
 
-
-  return result
+  return result;
 }
  
 
@@ -75,7 +82,7 @@ const insertIntoTable = async (tableName, listOfTableFields, listOfValuesToBeIns
 
 /**
  * 
- * Function to select a row from a table
+ * Asynchronous Function to select a row from a table
  * @param {string} tableName table name to select from
  * @param {string} fields columns to be selected
  * @param {string} condition condition to be used for filtering
