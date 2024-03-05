@@ -3,7 +3,7 @@ import trycatch from "../utils/libs/tryCatch.js"
 import { deleteFromTable, insertIntoTable, selectFromTable, updateTable } from "../config/sql.js"
 import { StatusCodes } from "http-status-codes"
 
-
+const tableName = 'reviews' 
 /***
  *  TO DO
  * 
@@ -20,7 +20,7 @@ export const post_review = trycatch(async(req, res) =>{
     return errorResponse(res, `${missing_field} field is required`, StatusCodes.BAD_REQUEST)
   }
 
-  const insertReviewResult = await insertIntoTable('reviews', ['user_id', 'rating', 'comment'], [user_id, rating, comment])
+  const insertReviewResult = await insertIntoTable(tableName, ['user_id', 'rating', 'comment'], [user_id, rating, comment])
   console.log(insertReviewResult)
   return successResponse(res, 'user review', { user_id, rating, comment },StatusCodes.CREATED)
 })
@@ -33,7 +33,7 @@ export const edit_review = trycatch(async(req, res) => {
     return errorResponse(res, `${missing_field} field is required`, StatusCodes.BAD_REQUEST)
   }
 
-  const selectResult = await selectFromTable('reviews', '*', `reviews_id = ${review_id} AND user_id = '${user_id}'`)
+  const selectResult = await selectFromTable(tableName, '*', `reviews_id = ${review_id} AND user_id = '${user_id}'`)
 
   if (selectResult.length === 0){
     return errorResponse(res, 'The review you seek does not exist', StatusCodes.EXPECTATION_FAILED)
@@ -48,7 +48,7 @@ export const edit_review = trycatch(async(req, res) => {
     ['reviews_id', review_id],
     ['user_id', user_id]
   ]
-  const result = await updateTable('reviews', fieldToUpdate, conditions)
+  const result = await updateTable(tableName, fieldToUpdate, conditions)
 
   console.log(result)
   return successResponse(res, 'update review', {user_id, review_id, updated_comment})
@@ -62,7 +62,7 @@ export const delete_review = trycatch(async(req, res) => {
     return errorResponse(res, `${missing_field} field is required`, StatusCodes.BAD_REQUEST)
   }
 
-  const validReview = await selectFromTable('reviews', '*',  `user_id = '${user_id}'
+  const validReview = await selectFromTable(tableName, '*',  `user_id = '${user_id}'
    AND rating = ${rating} AND reviews_id = ${review_id}`)
 
    if (validReview.length === 0){
@@ -74,6 +74,6 @@ export const delete_review = trycatch(async(req, res) => {
     `rating = ${rating}`,
     `reviews_id = ${review_id}`
   ];
-  const result = await deleteFromTable('reviews', conditions)
+  const result = await deleteFromTable(tableName, conditions)
   return successResponse(res, 'delete review', { user_id, review_id, result })
 }) 

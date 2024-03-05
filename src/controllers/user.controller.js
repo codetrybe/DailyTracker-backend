@@ -5,9 +5,12 @@ import db from "../config/db.js";
 import util from "util";
 import { removePasswordFromUser } from "../utils/helpers/user.helper.js";
 import { comparePassword, hashPassword } from "../utils/helpers/bcrypt.helper.js";
+import { deleteFromTable, selectFromTable, updateTable } from "../config/sql.js";
 
 // convert the callback-based db.query to a promise-based function
 const queryPromise = util.promisify(db.query).bind(db);
+
+const tableName = 'users';
 
 /**
  * Get user Profile
@@ -18,8 +21,12 @@ const queryPromise = util.promisify(db.query).bind(db);
 export const getUser = tryCatch(async (req, res) => {
 	// const {user_id} = req.params;
   const { user_id } = req.app.get("user");
-	const userQuery = "SELECT * FROM users WHERE user_id = ?";
-	const user = await queryPromise(userQuery, [user_id]);
+	// const userQuery = "SELECT * FROM users WHERE user_id = ?";
+	// const user = await queryPromise(userQuery, [user_id]);
+
+  const condition = `user_id = ${user_id}` 
+  const user = await selectFromTable(tableName, '*', condition)
+
 	if (user.length === 0) {
 		return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
 	}
@@ -40,7 +47,7 @@ export const updateUser = tryCatch(async (req, res) => {
     "user_id",
     "username",
     "email",
-	"password_hash",
+	  "password_hash",
     "is_email_verified",
     "is_phone_verified",
     "created_at",
@@ -59,8 +66,11 @@ export const updateUser = tryCatch(async (req, res) => {
 
   // check if user is in db
   // Unwrap user object from query-returned array, for easy access of user properties.
-  const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
-  const user = await queryPromise(checkUserQuery, [user_id]);
+  // const checkUserQuery = "SELECT * FROM users WHERE user_id = ?";
+  // const user = await queryPromise(checkUserQuery, [user_id]);
+
+  const condition = `user_id = ${user_id}`
+  const user = await selectFromTable(tableName, '*', condition)
 
   if (user.length === 0) {
     return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
@@ -86,8 +96,11 @@ export const changePassword = tryCatch(async (req, res) => {
   // const { user_id } = req.params;
   const { user_id } = req.app.get("user");
   const { oldPassword, newPassword, confirmPassword } = req.body;
-  const userQuery = "SELECT * FROM users WHERE user_id = ?";
-  const user = await queryPromise(userQuery, [user_id]);
+  // const userQuery = "SELECT * FROM users WHERE user_id = ?";
+  // const user = await queryPromise(userQuery, [user_id]);
+
+  const user = await selectFromTable(tableName, '*', `user_id = ${user_id}`)
+
   if (user.length === 0) {
     return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
   }
@@ -106,8 +119,13 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
   }
   const hashedPassword = await hashPassword(newPassword);
 //   update password
-  const updateQuery = "UPDATE users SET password_hash = ? WHERE user_id = ?";
-  await queryPromise(updateQuery, [hashedPassword, user_id]);
+  // const updateQuery = "UPDATE users SET password_hash = ? WHERE user_id = ?";
+  // await queryPromise(updateQuery, [hashedPassword, user_id]);
+  const fieldsToUpdate = [
+    { field: 'password_hash', value: hashedPassword }
+  ]
+  const condition = ['user_id', user_id]
+  await updateTable(tableName, fieldsToUpdate, condition)
 
   return successResponse(res, "Password changed successfully");
 
@@ -122,14 +140,18 @@ const passwordCheck = await comparePassword(oldPassword, user[0].password_hash)
 export const deleteUser = tryCatch(async (req, res) => {
   // const { user_id } = req.params;
   const { user_id } = req.app.get("user");
-  const userQuery = "SELECT * FROM users WHERE user_id = ?";
-  const user = await queryPromise(userQuery, [user_id]);
+  // const userQuery = "SELECT * FROM users WHERE user_id = ?";
+  // const user = await queryPromise(userQuery, [user_id]);
+  const user = await selectFromTable(tableName, '*', `user_id = ${user_id}`)
+
   if (user.length === 0) {
 	return errorResponse(res, "User not found", StatusCodes.NOT_FOUND);
   }
   
-  const deleteQuery = "DELETE FROM users WHERE user_id = ?";
-  await queryPromise(deleteQuery, [user_id]);
+  // const deleteQuery = "DELETE FROM users WHERE user_id = ?";
+  // await queryPromise(deleteQuery, [user_id]);
+
+  await deleteFromTable(tableName, `user_id = ${user_id}`)
 
   return successResponse(res, "user account deleted successfully");
 });
